@@ -1,0 +1,25 @@
+[project]
+name = "duck-assistant"
+version = "0.1.0"
+description = "A modular local AI assistant using your notes and code"
+authors = [
+    { name="Resh", email="ididthisforow@outlook.com" }
+]
+dependencies = [
+    "chromadb",
+    "markdown",
+    "beautifulsoup4",
+    "requests",
+    "click"
+]
+requires-python = ">=3.8"
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["duck"]
+
+[project.scripts]
+duck = "cli:main"
