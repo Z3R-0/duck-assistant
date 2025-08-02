@@ -15,6 +15,7 @@ downloads/
 eggs/
 .eggs/
 lib/
+bin/
 lib64/
 parts/
 sdist/
@@ -201,3 +202,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Duck specific exclusions
+test-context/

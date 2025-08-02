@@ -1,40 +1,48 @@
+import os
 import chromadb
-from chromadb.utils import embedding_functions
 from pathlib import Path
-from bs4 import BeautifulSoup
-import markdown
-import hashlib
+from chromadb.utils import embedding_functions
 
-# Use persistent client, specify your desired path for DB files
-client = chromadb.PersistentClient(path="./chromadb_data")
+CHROMA_PATH = Path("./bin/chromadb_data")
+CHROMA_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-# Explicitly create or get the collection with the same embedder as used for queries
+client = chromadb.PersistentClient(path=str(CHROMA_PATH))
 embedder = embedding_functions.DefaultEmbeddingFunction()
 
-collection = client.get_or_create_collection(
-    "duck_notes",
-    embedding_function=embedder
-)
+def index_context(session_id, context_path):
+    collection = client.get_or_create_collection(f"session_{session_id}", embedding_function=embedder)
+    docs = []
+    ids = []
 
-def clean_markdown(md_text):
-    html = markdown.markdown(md_text)
-    return BeautifulSoup(html, features="html.parser").get_text()
+    context_path = Path(context_path)
+    if not context_path.exists():
+        print(f"[indexer] ERROR: context_path does not exist: {context_path}")
+        return
 
-def chunk_text(text, size=500):
-    return [text[i:i+size] for i in range(0, len(text), size)]
+    for root, _, files in os.walk(context_path):
+        for fname in files:
+            fpath = os.path.join(root, fname)
+            with open(fpath, "r", encoding="utf-8", errors="ignore") as f:
+                content = f.read().strip()
+            if not content:
+                print(f"[indexer] Skipping empty file: {fpath}")
+                continue
+            docs.append(content)
+            ids.append(f"{fname}_{len(ids)}")
 
-vault_path = Path("C:/Users/ididt/SyncThing/main-notes").expanduser()
+    if not docs:
+        print(f"[indexer] No readable documents found in: {context_path}")
+        return
 
-existing_ids = set(collection.get(ids=None)["ids"])  # fetch existing IDs to avoid duplicates
+    print(f"[indexer] Indexing {len(docs)} documents from: {context_path}")
+    collection.add(documents=docs, ids=ids)
 
-for file in vault_path.rglob("*.md"):
-    with open(file, encoding="utf-8") as f:
-        raw = f.read()
-    chunks = chunk_text(clean_markdown(raw))
-    for chunk in chunks:
-        uid = hashlib.md5(chunk.encode()).hexdigest()
-        if uid not in existing_ids:
-            collection.add(documents=[chunk], ids=[uid])
-            existing_ids.add(uid)
+def query_context(query, session_id, k=5):
+    collection = client.get_or_create_collection(f"session_{session_id}", embedding_function=embedder)
+    results = collection.query(query_texts=[query], n_results=k)
 
-print(f"Indexed documents: {len(existing_ids)}")
+    docs = results.get("documents", [[]])[0]
+    if not docs:
+        return "No relevant documents found."
+
+    return "\n---\n".join(docs)
