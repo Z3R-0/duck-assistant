@@ -8,9 +8,11 @@ def print_usage():
     print("  duck --list")
     print("      List all sessions.")
     print("  duck --new <name> <path_to_context>")
-    print("      Create a new session.")
+    print("      Create a new session (will return the slug).")
     print("  duck --session <slug> <prompt>")
     print("      Ask a question in the given session.")
+    print("  duck --clear-cache <slug>")
+    print("      Clear cached embeddings for a session")
 
 def main():
     args = sys.argv[1:]
