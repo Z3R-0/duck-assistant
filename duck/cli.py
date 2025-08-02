@@ -1,5 +1,6 @@
 import sys
 from chat_engine import chat_with_context
+from indexer import clear_session_cache
 from session_manager import load_sessions, create_session
 
 def print_usage():
@@ -31,6 +32,11 @@ def main():
         name, context_path = args[1], args[2]
         slug = create_session(name, context_path)
         print(f"Session created: {slug}")
+        return
+    
+    if args[0] == "--clear-cache" and len(args) == 2:
+        slug = args[1]
+        clear_session_cache(slug)
         return
 
     if args[0] == "--session" and len(args) >= 3:

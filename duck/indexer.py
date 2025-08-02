@@ -30,7 +30,10 @@ def index_context(session_id, context_path):
                 print(f"[indexer] Skipping empty file: {fpath}")
                 continue
             docs.append(content)
-            ids.append(f"{fname}_{len(ids)}")
+            # Construct a unique, stable ID based on session and file path
+            relative_path = os.path.relpath(fpath, start=context_path)
+            doc_id = f"{session_id}:{relative_path.replace(os.sep, '/')}"
+            ids.append(doc_id)
             total_chars += len(content)
 
     if not docs:
@@ -38,7 +41,7 @@ def index_context(session_id, context_path):
         return
 
     print(f"[indexer] Indexing {len(docs)} documents from: {context_path} (total size: {total_chars} chars, ~{total_chars // 4} tokens)")
-    collection.add(documents=docs, ids=ids)
+    collection.upsert(documents=docs, ids=ids)
 
 def query_context(query, session_id, k=5):
     collection = client.get_or_create_collection(f"session_{session_id}", embedding_function=embedder)
@@ -49,3 +52,11 @@ def query_context(query, session_id, k=5):
         return "No relevant documents found."
 
     return "\n---\n".join(docs)
+
+def clear_session_cache(session_id):
+    collection_name = f"session_{session_id}"
+    try:
+        client.delete_collection(name=collection_name)
+        print(f"[indexer] Cleared cache for session '{session_id}'")
+    except Exception as e:
+        print(f"[indexer] Failed to clear cache for session '{session_id}': {e}")
