@@ -19,6 +19,8 @@ def index_context(session_id, context_path):
         print(f"[indexer] ERROR: context_path does not exist: {context_path}")
         return
 
+    total_chars = 0
+
     for root, _, files in os.walk(context_path):
         for fname in files:
             fpath = os.path.join(root, fname)
@@ -29,12 +31,13 @@ def index_context(session_id, context_path):
                 continue
             docs.append(content)
             ids.append(f"{fname}_{len(ids)}")
+            total_chars += len(content)
 
     if not docs:
         print(f"[indexer] No readable documents found in: {context_path}")
         return
 
-    print(f"[indexer] Indexing {len(docs)} documents from: {context_path}")
+    print(f"[indexer] Indexing {len(docs)} documents from: {context_path} (total size: {total_chars} chars, ~{total_chars // 4} tokens)")
     collection.add(documents=docs, ids=ids)
 
 def query_context(query, session_id, k=5):
