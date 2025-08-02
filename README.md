@@ -3,13 +3,20 @@
 A modular context- and session-based, local-first assistant built on top of local LLMs designed for personal use and hackability.  
 Powered by Ollama, Python, and your own indexed notes or code.
 
+Ever wished you didn't need to copy paste (and anonymize) your data into ChatGPT and be told your prompt was too long?
+Well, then duck-assistant is for you: 
+* It's local, so no worries about your data being shared with whoever.
+* You control the context, so it'll ingest your notes for relevant answers.
+* The limit of context size goes as far as your hardware and Ollama can handle.
+* In the future, context will be optimized/summarized for improved performance and size limits.
+
 ## Features
 
 - **Session-based context**: Create named sessions with specific folders of indexed content.
 - **Chat history awareness**: Prompts include prior conversation turns for continuity.
 - **Embeddings-powered retrieval**: Uses ChromaDB to find relevant documents from your session context.
-- **Offline-capable**: No cloud calls required once Phi-3 and ChromaDB are set up.
-- **Minimal CLI interface**: No GUI, no bloat, just you and your assistant.
+- **Offline-capable**: No cloud calls required once your Ollama model(s) set up.
+- **Optional CLI interface**: Just you and your assistant.
 
 ## Quick Start
 
@@ -39,7 +46,7 @@ duck --clear-cache project-x
 * session_manager.py: Handles creating and loading sessions
 * indexer.py: Handles context indexing (with ChromaDB) and querying
 * chat_engine.py: Runs inference with context + history
-* model_interface.py: Handles interaction with the local Phi-3 model
+* model_interface.py: Handles interaction with the local Ollama model
 
 ## Philosophy
 
@@ -48,9 +55,10 @@ It’s meant to live alongside your notes, code, and workflow — not behind a p
 
 ## Requirements
 
-* Python 3.10+
-* Ollama
+* Ollama, for the actual AI responses
+* Python 3.10+ (if running through `pip`)
 
 ## Roadmap (next steps)
 * GUI
+* Automated context size optimization
 * Tag-aware or metadata-based indexing
