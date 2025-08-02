@@ -1,7 +1,17 @@
+from pathlib import Path
+import sys
 import requests
 import json
 
-with open("duck/config.json") as f:
+def get_base_path():
+    if getattr(sys, 'frozen', False):
+        return Path(sys._MEIPASS)  # PyInstaller runtime temp folder
+    else:
+        return Path(__file__).parent
+
+CONFIG_PATH = get_base_path() / "config.json"
+
+with open(CONFIG_PATH) as f:
     config = json.load(f)
 
 OLLAMA_URL = config.get("ollama_url", "http://localhost:11434/api/generate")

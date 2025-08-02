@@ -1,4 +1,4 @@
-# 🦆 duck-assistant
+# 🦆 duck-assistant, your personal rubber duck!
 
 A modular context- and session-based, local-first assistant built on top of local LLMs designed for personal use and hackability.  
 Powered by Ollama, Python, and your own indexed notes or code.
